@@ -6,7 +6,6 @@ use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Mail\Mailer as MailerContract;
 use Illuminate\Database\Schema\Builder;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Jrean\UserVerification\Exceptions\ModelNotCompliantException;
 use Jrean\UserVerification\Exceptions\UserNotFoundException;
@@ -37,7 +36,6 @@ class UserVerification
     public function __construct(MailerContract $mailer, Builder $schema)
     {
         $this->mailer = $mailer;
-
         $this->schema = $schema;
     }
 
@@ -104,9 +102,9 @@ class UserVerification
      * @param  string  $table
      * @return stdClass
      */
-    public function getUser($token, $table)
+    public function getUser($token, $email, $table)
     {
-        return $this->getUserByToken($token, $table);
+        return $this->getUserByTokenEmail($token, $email, $table);
     }
 
     /**
@@ -176,7 +174,7 @@ class UserVerification
      */
     protected function generateToken($email)
     {
-        return sha1(microtime() . Crypt::encrypt($email));
+        return sha1(microtime() . $email);
     }
 
     /**
@@ -241,9 +239,12 @@ class UserVerification
      *
      * @throws \Jrean\UserVerification\Exceptions\UserNotFoundException
      */
-    protected function getUserByToken($token, $table)
+    protected function getUserByTokenEmail($token, $email, $table)
     {
-        $user = DB::table($table)->where('verification_token', $token)->first(['id', 'email', 'verified', 'verification_token', 'table']);
+        $user = DB::table($table)
+                ->where('email', $email)
+                ->where('verification_token', $token)
+                ->first(['id', 'email', 'verified', 'verification_token']);
 
         if ($user === null) {
             throw new UserNotFoundException();
