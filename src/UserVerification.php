@@ -176,7 +176,7 @@ class UserVerification
      */
     protected function generateToken($email)
     {
-        return Crypt::encrypt($email);
+        return sha1(microtime() . Crypt::encrypt($email));
     }
 
     /**
