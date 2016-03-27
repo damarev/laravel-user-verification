@@ -250,10 +250,6 @@ class UserVerification
             throw new UserNotFoundException();
         }
 
-        if ($user->verified == 1) {
-            throw new UserAlreadyValidatedException();
-        }
-
         $user->table = $table;
 
         return $user;
