@@ -3,7 +3,6 @@
 namespace Jrean\UserVerification\Traits;
 
 use Illuminate\Http\Request;
-
 use Jrean\UserVerification\Facades\UserVerification;
 
 trait VerifiesUsers
