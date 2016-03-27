@@ -2,6 +2,8 @@
 
 namespace Jrean\UserVerification\Traits;
 
+use Illuminate\Http\Request;
+
 use Jrean\UserVerification\Facades\UserVerification;
 
 trait VerifiesUsers
@@ -14,9 +16,9 @@ trait VerifiesUsers
      * @param  string  $token
      * @return Response
      */
-    public function getVerification($token)
+    public function getVerification($token, Request $request)
     {
-        $user = UserVerification::getUser($token, $this->userTable());
+        $user = UserVerification::getUser($token, $request->get('email'), $this->userTable());
 
         if (UserVerification::isVerified($user)) {
             return redirect($this->redirectIfVerified());
