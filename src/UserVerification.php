@@ -10,7 +10,6 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Jrean\UserVerification\Exceptions\ModelNotCompliantException;
 use Jrean\UserVerification\Exceptions\UserNotFoundException;
-use Jrean\UserVerification\Exceptions\UserAlreadyValidatedException;
 
 class UserVerification
 {
