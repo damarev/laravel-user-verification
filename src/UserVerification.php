@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\DB;
 use Jrean\UserVerification\Exceptions\ModelNotCompliantException;
 use Jrean\UserVerification\Exceptions\UserNotFoundException;
+use Jrean\UserVerification\Exceptions\UserAlreadyValidatedException;
 
 class UserVerification
 {
@@ -106,7 +107,7 @@ class UserVerification
      */
     public function getUser($token, $table)
     {
-        return $this->getUserByEmail($this->getEmail($token), $table);
+        return $this->getUserByToken($token, $table);
     }
 
     /**
@@ -180,17 +181,6 @@ class UserVerification
     }
 
     /**
-     * Decrypt the token to get the email.
-     *
-     * @param  string  $token
-     * @return string
-     */
-    protected function decryptEmailFromToken($token)
-    {
-        return Crypt::decrypt($token);
-    }
-
-    /**
      * Update and save the model instance with the verification token.
      *
      * @param  \Illuminate\Contracts\Auth\Authenticatable  $user
@@ -252,27 +242,20 @@ class UserVerification
      *
      * @throws \Jrean\UserVerification\Exceptions\UserNotFoundException
      */
-    protected function getUserByEmail($email, $table)
+    protected function getUserByToken($token, $table)
     {
-        $user = DB::table($table)->where('email', $email)->first(['id', 'email', 'verified', 'verification_token', 'table']);
+        $user = DB::table($table)->where('verification_token', $token)->first(['id', 'email', 'verified', 'verification_token', 'table']);
 
         if ($user === null) {
             throw new UserNotFoundException();
         }
 
+        if ($user->verified == 1) {
+            throw new UserAlreadyValidatedException();
+        }
+
         $user->table = $table;
 
         return $user;
-    }
-
-    /**
-     * Decrypt token and extract email.
-     *
-     * @param  string  $token
-     * @return string
-     */
-    protected function getEmail($token)
-    {
-        return $this->decryptEmailFromToken($token);
     }
 }
